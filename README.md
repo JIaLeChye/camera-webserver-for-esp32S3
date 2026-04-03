@@ -48,11 +48,7 @@ https://heyrick.eu/blog/index.php?diary=20210418&keitai=0](https://heyrick.eu/bl
 - **Capture controls**: Start capturing images with the Capture button. Set capture intervals (minimum 0.1 seconds) and limit total images with Instances.<br /> 
 - Download button will zip all captured images into a single file for easy batch downloading.<br />
 - Clear button will delete all captured images at once.<br />
-- Delete individual images by clicking the X on each thumbnail.<br /><br />
-![alt_text](/Images_for_readme/capture_console.PNG)
-<br /><br /> <br />
-- **Image Gallery**: View and manage all captured images in the gallery panel.<br /><br />
-![alt_text](/Images_for_readme/gallery_img.PNG)
-<br /> <br /><br /> <br />
+- Delete individual images by clicking the X on each thumbnail.<br />
+- **Image Gallery**: View and manage all captured images in the gallery panel.<br />
 ## Credit
 Thanks to [WIRELESS SOLUTION ASIA CO.,LTD](https://wirelesssolution.asia/) for providing AIOT board to support this project. Also thanks to [RandomNerdTutorials]([RandomNerdTutorial](https://RandomNerdTutorials.com/esp32-cam-video-streaming-web-server-camera-home-assistant) for providing essential codes for streaming Esp32 camera to webserver.
