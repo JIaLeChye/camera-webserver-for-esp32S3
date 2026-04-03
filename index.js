@@ -103,7 +103,7 @@ function getLanguage() {
   if (getLang == "en") {
     englishSelect.click();
   }
-  else if (getLang = "th") {
+  else if (getLang == "th") {
     thaiSelect.click();
   }
   else {
@@ -114,17 +114,19 @@ function getLanguage() {
 //////////////////////////////////////////
 
 /////////////// console buttons ///////////////////
-var classLabel = document.getElementById("class");
+var classInput = document.getElementById("class");
 var captureButton = document.getElementById("capture");
 var clearButton = document.getElementById("clear");
 var stopButton = document.getElementById("stop");
 var downloadButton = document.getElementById("download");
 
 var picture = document.getElementById("stream");
+var loadingScreen = document.getElementById("loading-screen");
 var loadingIcon = document.getElementById("loading");
 var setting = document.getElementById('setting');
 var settings_contents = document.getElementById("setting-contents");
 var arrow = document.getElementById("arrow");
+settings_contents.style.visibility = "hidden";
 /////////////////////////////
 
 var width = 0;
@@ -134,18 +136,83 @@ var settingHide = true;
 var galleryDict = new Map();
 let index = 0;
 
+var espIpValue = document.getElementById("espIpValue");
+var streamStatusValue = document.getElementById("streamStatusValue");
+var espIpInput = document.getElementById("espIpInput");
+var connectButton = document.getElementById("connectButton");
+var loadingEspIpInput = document.getElementById("loadingEspIpInput");
+var loadingConnectButton = document.getElementById("loadingConnectButton");
+
+function normalizeIpAddress(inputAddress) {
+  if (!inputAddress) {
+    return "";
+  }
+  return inputAddress.replace(/^https?:\/\//, "").replace(/\/$/, "").trim();
+}
+
+function getIpFromStreamPath(streamPath) {
+  if (!streamPath) {
+    return "Not connected";
+  }
+
+  try {
+    return new URL(streamPath).hostname;
+  }
+  catch (error) {
+    return streamPath.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  }
+}
+
+function setConnectionInfo(ipText, statusText) {
+  espIpValue.textContent = ipText;
+  streamStatusValue.textContent = statusText;
+}
+
+function syncIpInputs(ipAddress) {
+  espIpInput.value = ipAddress;
+  loadingEspIpInput.value = ipAddress;
+}
+
+function setStreamAddress(ipAddress) {
+  var normalizedIp = normalizeIpAddress(ipAddress);
+  if (!normalizedIp) {
+    return;
+  }
+  var convertedHttpStream = "http://" + normalizedIp + "/stream";
+  var convertedHttpSetting = "http://" + normalizedIp + "/setting?";
+  localStorage.setItem('streamPath', convertedHttpStream);
+  localStorage.setItem('settingPath', convertedHttpSetting);
+  syncIpInputs(normalizedIp);
+  setConnectionInfo(normalizedIp, "Idle");
+}
+
+var savedStreamPath = localStorage.getItem('streamPath');
+if (savedStreamPath) {
+  var savedIp = getIpFromStreamPath(savedStreamPath);
+  syncIpInputs(savedIp);
+  setConnectionInfo(savedIp, "Idle");
+}
+
 async function getStreamAddress() {
   let previousStreamRequest = localStorage.getItem('streamPath');
   let streamState = localStorage.getItem('streamState');
-  if (streamState !== '1') {
-    var inputAddress = prompt('ip address from arduino');
-    var convertedHttpStream = "http://" + inputAddress + "/stream";
-    var convertedHttpSetting = "http://" + inputAddress + "/setting?";
-    localStorage.setItem('streamPath', convertedHttpStream);
-    localStorage.setItem('settingPath', convertedHttpSetting);
-    return convertedHttpStream;
+  let inputAddress = normalizeIpAddress(espIpInput.value);
+
+  if (inputAddress) {
+    setStreamAddress(inputAddress);
+    previousStreamRequest = localStorage.getItem('streamPath');
   }
-  console.log(previousStreamRequest);
+
+  if (streamState !== '1') {
+    if (!previousStreamRequest) {
+      setConnectionInfo("Not connected", "Waiting");
+      return previousStreamRequest;
+    }
+    setConnectionInfo(getIpFromStreamPath(previousStreamRequest), "Connecting");
+    return previousStreamRequest;
+  }
+
+  setConnectionInfo(getIpFromStreamPath(previousStreamRequest), "Connected");
   return previousStreamRequest;
 }
 
@@ -158,11 +225,13 @@ async function checkStream(url) {
       height = picture.clientHeight;
       console.log(width + " X " + height);
       localStorage.setItem('streamState', '1');
+      setConnectionInfo(getIpFromStreamPath(localStorage.getItem('streamPath')), "Connected");
+      updateStreamSize();
       resolve(true);
     };
     picture.onerror = () => {
-      alert("check if the ip address is valid or if CORS is enabled")
       localStorage.setItem('streamState', '0');
+      setConnectionInfo(getIpFromStreamPath(localStorage.getItem('streamPath')), "Invalid IP or CORS blocked");
       resolve(false);
     }
   }
@@ -172,6 +241,10 @@ async function checkStream(url) {
 async function fetchStream() {
   for (let i = 0; i < 5; i++) {
     const inputAddress = await getStreamAddress();
+    if (!inputAddress) {
+      setConnectionInfo("Not connected", "Waiting");
+      return;
+    }
     await checkStream(inputAddress).then(console.log);
     await new Promise(resolve => setTimeout(resolve, 200));
     let streamState = localStorage.getItem('streamState');
@@ -193,6 +266,36 @@ var inputInstance = document.getElementById('instance');
 inputInstance.value = 30;
 
 ////////// camera settings /////////////
+
+// Resolution to pixel dimensions mapping
+const resolutionDimensions = {
+  "0": { width: 96, height: 96 },
+  "1": { width: 160, height: 120 },
+  "2": { width: 176, height: 144 },
+  "3": { width: 240, height: 176 },
+  "4": { width: 240, height: 240 },
+  "5": { width: 320, height: 240 },
+  "6": { width: 400, height: 296 },
+  "7": { width: 480, height: 320 },
+  "8": { width: 640, height: 480 },
+  "9": { width: 800, height: 600 },
+  "10": { width: 1024, height: 768 },
+  "11": { width: 1280, height: 720 },
+  "12": { width: 1280, height: 1024 }
+};
+
+function updateStreamSize() {
+  const stream = document.getElementById("stream");
+  const selectedRes = resolution.value;
+  const dimensions = resolutionDimensions[selectedRes];
+  
+  if (dimensions) {
+    // Set width with clamp to be responsive while respecting aspect ratio
+    const maxWidth = Math.min(dimensions.width * 1.2, 600);
+    stream.style.width = "auto";
+    stream.style.maxWidth = maxWidth + "px";
+  }
+}
 
 var resolution = document.getElementById("resolution");
 resolution.addEventListener("change", changeResolution);
@@ -286,7 +389,6 @@ async function changeAe() {
 async function changeAec2(){
   var selectedAec2 = aec2.options[aec2.selectedIndex].value;
   var params = "aec2=" + selectedAec2;
-  await changeSettingApi(params);
   const jsonCameraStatus = await changeSettingApi(params);
   await updateSettings(jsonCameraStatus);
 }
@@ -345,22 +447,37 @@ async function changeResolution() {
   var params = "resolution=" + selectedRes;
   const jsonCameraStatus = await changeSettingApi(params);
   await updateSettings(jsonCameraStatus);
+  updateStreamSize();
 }
 
 async function changeSettingApi(params) {
-  
+
   await stopStream();
   let settingAddress = localStorage.getItem('settingPath');
-  const response = await fetch(settingAddress + params);
-  if (response.status == 200){
-    const data = await response.json();
-    console.log(data);
-    return data;
+  if (!settingAddress) {
+    setConnectionInfo("Not connected", "Set IP first");
+    return null;
   }
-  
+
+  try {
+    const response = await fetch(settingAddress + params);
+    if (response.status == 200) {
+      const data = await response.json();
+      console.log(data);
+      return data;
+    }
+  }
+  catch (error) {
+    setConnectionInfo(getIpFromStreamPath(localStorage.getItem('streamPath')), "Failed");
+  }
+
+  return null;
 }
 
 async function updateSettings(cameraStatus){
+  if (!cameraStatus) {
+    return;
+  }
   console.log(cameraStatus);
   brightness.value = cameraStatus.brightness; //
   contrast.value = cameraStatus.contrast; //
@@ -383,10 +500,19 @@ async function updateSettings(cameraStatus){
 ////////////////////////////////////////////////////////
 
 async function getInitialSettingsAndStream() {
+  setConnectionInfo("Not connected", "Loading");
   await fetchStream();
   getLanguage();
-  const jsonCameraStatus = await changeSettingApi("resolution=4");
-  await updateSettings(jsonCameraStatus);
+
+  if (localStorage.getItem('streamState') == '1') {
+    const jsonCameraStatus = await changeSettingApi("resolution=" + resolution.value);
+    await updateSettings(jsonCameraStatus);
+    updateStreamSize();
+  } else {
+    removeLoadingIcon();
+    updateStreamSize();
+  }
+
   updateImageNo();
 }
 
@@ -399,6 +525,51 @@ downloadDelete = document.getElementById('download-delete')
 downloadDelete.style.visibility = 'hidden';
 
 stopButton.style.visibility = 'hidden';
+
+connectButton.addEventListener("click", async function () {
+  var inputAddress = normalizeIpAddress(espIpInput.value);
+  if (!inputAddress) {
+    setConnectionInfo("Not connected", "Enter IP");
+    return;
+  }
+
+  localStorage.setItem('streamState', '0');
+  setStreamAddress(inputAddress);
+  showLoadingIcon();
+  await fetchStream();
+
+  if (localStorage.getItem('streamState') == '1') {
+    const jsonCameraStatus = await changeSettingApi("resolution=" + resolution.value);
+    await updateSettings(jsonCameraStatus);
+  } else {
+    removeLoadingIcon();
+  }
+});
+
+loadingConnectButton.addEventListener("click", async function () {
+  syncIpInputs(normalizeIpAddress(loadingEspIpInput.value));
+  connectButton.click();
+});
+
+espIpInput.addEventListener("input", function () {
+  loadingEspIpInput.value = espIpInput.value;
+});
+
+loadingEspIpInput.addEventListener("input", function () {
+  espIpInput.value = loadingEspIpInput.value;
+});
+
+espIpInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    connectButton.click();
+  }
+});
+
+loadingEspIpInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    loadingConnectButton.click();
+  }
+});
 
 async function displayCanvas(picIndex) {
   const displayCanvas = document.createElement("canvas");
@@ -580,11 +751,11 @@ downloadButton.addEventListener("click", async function () {
   for (const value of galleryDict.values()) {
     let data = value.substr(value.indexOf(",") + 1)
     count++;
-    zip.file(classLabel.value + count.toString() + ".jpg", data, { base64: true })
+    zip.file(classInput.value + count.toString() + ".jpg", data, { base64: true })
   }
 
   const zipFile = await zip.generateAsync({ type: 'blob' });
-  downloadLink.download = "images_of_" + classLabel.value + '.zip';
+  downloadLink.download = "images_of_" + classInput.value + '.zip';
 
   const url = URL.createObjectURL(zipFile);
   downloadLink.href = url;
@@ -605,10 +776,13 @@ function showLoadingIcon() {
   loadingIcon.src = "./loading.gif";
   loadingIcon.setAttribute("width", "120");
   loadingIcon.setAttribute("height", "120");
-  loadingIcon.style.visibility = "visible";
+  loadingScreen.style.display = "grid";
 }
 
 function removeLoadingIcon() {
   loadingIcon.removeAttribute('src');
-  loadingIcon.style.visibility = 'hidden';
+  loadingScreen.style.display = 'none';
 }
+
+captureButton.style.visibility = 'visible';
+stopButton.style.visibility = 'hidden';

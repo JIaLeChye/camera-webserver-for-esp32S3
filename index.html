@@ -9,178 +9,176 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="height: 100%; width: 99vw;background-color: #348285; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
-  <div class="navigation-bar">
-    <div class="setting-container">
-      <img class = "setting-icon" id = "setting" src = "icons/setting.png">
-      <img class = "arrow" id = "arrow" src = "icons/caret-down.png">
-      <div id ="setting-contents" class="setting-contents">
-        <text id="brightLabel" class="basic-setting-label"></text>
-        <select id="brightness" class="basic-setting-input">
-          <option value="-2">-2</option>
-          <option value="-1">-1</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <text id="contrastLabel" class="basic-setting-label"></text>
-        <select id="contrast" class="basic-setting-input">
-          <option value="-2">-2</option>
-          <option value="-1">-1</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <text id="saturationLabel" class="basic-setting-label"></text>
-        <select id="saturation" class="basic-setting-input">
-          <option value="-2">-2</option>
-          <option value="-1">-1</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <text id="whiteballLabel" class="basic-setting-label"></text>
-        <select id="whiteball" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
-        <text id="awbLabel" class="basic-setting-label"></text>
-        <select id="awb" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
-        <text id="aeLabel" class="basic-setting-label"></text>
-        <select id="ae" class="basic-setting-input">
-          <option value="-2">-2</option>
-          <option value="-1">-1</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-        <text id="aec2Label" class="basic-setting-label"></text>
-        <select id="aec2" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
-        <text id="agcLabel" class="basic-setting-label"></text>
-        <select id="agc" class="basic-setting-input">
-          <option value="0">off</option>
-          <option value="1">lowest</option>
-          <option value="7">low</option>
-          <option value="15">medium</option>
-          <option value="20">high</option>
-          <option value="25">very high</option>
-          <option value="30">max</option>
-        </select>
-        <text id="gainCelingLabel" class="basic-setting-label"></text>
-        <select id="gainCeling" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-        </select>
-        <text id="rawGmaLabel" class="basic-setting-label"></text>
-        <select id="rawGma" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
-        <text id="effectLabel" class="advance-setting-label"></text>
-        <select id="effect" class="advance-setting-input">
-          <option value="0">No Effect</option>
-          <option value="1">Negative</option>
-          <option value="2">Grayscale</option>
-          <option value="3">Red Tint</option>
-          <option value="4">Green Tint</option>
-          <option value="5">Blue Tint</option>
-          <option value="6">Sepia</option>
-        </select>
-        <text id="modeLabel" class="advance-setting-label"></text>
-        <select id="mode" class="advance-setting-input">
-          <option value="0">Auto</option>
-          <option value="1">Sunny</option>
-          <option value="2">Cloudy</option>
-          <option value="3">Office</option>
-          <option value="4">Home</option>
-        </select>
-        <text id="vflipLabel" class="basic-setting-label"></text>
-        <select id="vflip" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
-        <text id="hmirrorLabel" class="basic-setting-label"></text>
-        <select id="hmirror" class="basic-setting-input">
-          <option value="0">0</option>
-          <option value="1">1</option>
-        </select>
+<body>
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite" aria-label="Connecting to camera">
+    <div class="loading-card">
+      <img id="loading" class="loading" alt="Loading camera stream">
+      <p class="loading-kicker">Connecting</p>
+      <h2>Starting the camera stream</h2>
+      <p class="loading-copy">Looking for the ESP32 camera, loading the stream, and applying the last saved settings.</p>
+      <div class="loading-connection-controls">
+        <input id="loadingEspIpInput" class="ip-input loading-ip-input" type="text" placeholder="192.168.4.1" aria-label="ESP32 IP address on loading screen">
+        <button id="loadingConnectButton" class="connect-btn" type="button">Connect</button>
       </div>
-    </div>
-    <div class="language-container">
-      <text id="englishSelect" class="english">English</text>
-      <text style="font-size: 15px; color: bisque;">&nbsp&nbsp| &nbsp&nbsp</text>
-      <text id="thaiSelect" class="thai">ไทย</text>
+      <div class="loading-dots" aria-hidden="true"><span></span><span></span><span></span></div>
     </div>
   </div>
-  <br />
-  <div class="class-container">
-    <text id="classLabel" class="class_label"></text>
-    <input type="text" id="class" name="className" class="class_input">
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <p class="eyebrow">ESP32-S3 camera</p>
+        <h1>Camera Webserver</h1>
+        <p class="subtitle">Preview the live stream, tune camera settings, and manage captured images from one page.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="connection-pill" aria-live="polite">
+          <span class="connection-label">ESP IP</span>
+          <span id="espIpValue" class="connection-value">Not connected</span>
+          <span id="streamStatusValue" class="connection-status">Idle</span>
+        </div>
+
+        <div class="language-container" aria-label="Language selector">
+          <button id="englishSelect" class="language-option" type="button">English</button>
+          <span class="language-divider">|</span>
+          <button id="thaiSelect" class="language-option" type="button">ไทย</button>
+        </div>
+
+        <div class="setting-container">
+          <button id="setting" class="icon-button" type="button" aria-label="Open camera settings">
+            <img class="setting-icon" src="icons/setting.png" alt="Settings">
+            <img class="arrow" id="arrow" src="icons/caret-down.png" alt="">
+          </button>
+          <div id="setting-contents" class="setting-contents" aria-label="Camera settings">
+            <div class="settings-group">
+              <div class="settings-heading">Basic</div>
+              <label class="setting-field"><span id="brightLabel" class="basic-setting-label"></span><select id="brightness" class="basic-setting-input"><option value="-2">-2</option><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+              <label class="setting-field"><span id="contrastLabel" class="basic-setting-label"></span><select id="contrast" class="basic-setting-input"><option value="-2">-2</option><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+              <label class="setting-field"><span id="saturationLabel" class="basic-setting-label"></span><select id="saturation" class="basic-setting-input"><option value="-2">-2</option><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+              <label class="setting-field"><span id="whiteballLabel" class="basic-setting-label"></span><select id="whiteball" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+              <label class="setting-field"><span id="awbLabel" class="basic-setting-label"></span><select id="awb" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+              <label class="setting-field"><span id="aeLabel" class="basic-setting-label"></span><select id="ae" class="basic-setting-input"><option value="-2">-2</option><option value="-1">-1</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
+              <label class="setting-field"><span id="aec2Label" class="basic-setting-label"></span><select id="aec2" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+              <label class="setting-field"><span id="agcLabel" class="basic-setting-label"></span><select id="agc" class="basic-setting-input"><option value="0">off</option><option value="1">lowest</option><option value="7">low</option><option value="15">medium</option><option value="20">high</option><option value="25">very high</option><option value="30">max</option></select></label>
+              <label class="setting-field"><span id="gainCelingLabel" class="basic-setting-label"></span><select id="gainCeling" class="basic-setting-input"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></label>
+              <label class="setting-field"><span id="rawGmaLabel" class="basic-setting-label"></span><select id="rawGma" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+              <label class="setting-field"><span id="vflipLabel" class="basic-setting-label"></span><select id="vflip" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+              <label class="setting-field"><span id="hmirrorLabel" class="basic-setting-label"></span><select id="hmirror" class="basic-setting-input"><option value="0">0</option><option value="1">1</option></select></label>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-heading">Advanced</div>
+              <label class="setting-field"><span id="effectLabel" class="advance-setting-label"></span><select id="effect" class="advance-setting-input"><option value="0">No Effect</option><option value="1">Negative</option><option value="2">Grayscale</option><option value="3">Red Tint</option><option value="4">Green Tint</option><option value="5">Blue Tint</option><option value="6">Sepia</option></select></label>
+              <label class="setting-field"><span id="modeLabel" class="advance-setting-label"></span><select id="mode" class="advance-setting-input"><option value="0">Auto</option><option value="1">Sunny</option><option value="2">Cloudy</option><option value="3">Office</option><option value="4">Home</option></select></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel stream-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Live preview</p>
+            <h2>Camera stream</h2>
+          </div>
+          <label class="resolution-wrap" for="resolution">
+            <span class="resolution-label">Resolution</span>
+            <select id="resolution" class="resolution">
+              <option value="0">96X96</option>
+              <option value="1">QQVGA 160X120</option>
+              <option value="2">176X144</option>
+              <option value="3">240X176</option>
+              <option value="4" selected>240X240</option>
+              <option value="5">QVGA 320X240</option>
+              <option value="6">400X296</option>
+              <option value="7">480X320</option>
+              <option value="8">VGA 640X480</option>
+              <option value="9">SVGA 800X600</option>
+              <option value="10">XGA 1024X768</option>
+              <option value="11">720p 1280X720</option>
+              <option value="12">SXGA 1280X1024</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="ip-section">
+          <div class="ip-copy">
+            <p class="panel-kicker">Device connection</p>
+            <p class="ip-help">Enter the current ESP32 IP address and click Connect. You can update this anytime when the network changes.</p>
+          </div>
+          <div class="connection-controls">
+            <input id="espIpInput" class="ip-input" type="text" placeholder="192.168.4.1" aria-label="ESP32 IP address">
+            <button id="connectButton" class="connect-btn" type="button">Connect</button>
+          </div>
+        </div>
+
+        <div class="stream-container">
+          <img id="stream" class="stream" crossorigin="anonymous" alt="Live camera stream">
+        </div>
+      </section>
+
+      <section class="panel controls-panel">
+        <div class="panel-header compact">
+          <div>
+            <p class="panel-kicker">Capture</p>
+            <h2>Recording controls</h2>
+          </div>
+        </div>
+
+        <div class="class-container">
+          <label class="class-field" for="class">
+            <span id="classLabel" class="class_label"></span>
+            <input type="text" id="class" name="className" class="class_input" placeholder="capture-set">
+          </label>
+        </div>
+
+        <div class="console-container">
+          <div class="row action-row">
+            <button id="stop" class="icon-action stop-action" type="button" aria-label="Stop capture">
+              <img class="action-icon" src="icons/stop_9503472.png" alt="">
+            </button>
+            <button id="capture" class="icon-action capture-action" type="button" aria-label="Start capture">
+              <img class="action-icon" src="icons/camera_7369145.png" alt="">
+            </button>
+          </div>
+          <div class="row settings-row">
+            <label class="inline-field"><span id="intervalLabel" class="interval_label"></span><input type="number" id="interval" class="interval" min="0" step="0.05"></label>
+            <label class="inline-field"><span id="instanceLabel" class="instance_label"></span><input type="number" id="instance" class="instance" min="1" step="1"></label>
+          </div>
+        </div>
+
+        <div id="download-delete" class="download-delete">
+          <button id="download" class="icon-action download-action" type="button" aria-label="Download captured images">
+            <img class="action-icon" src="icons/document_5425860.png" alt="">
+          </button>
+          <label class="image-count-wrap" for="image_no">
+            <span class="image-count-label">Saved</span>
+            <input type="number" id="image_no" class="image-no" readonly>
+          </label>
+          <button id="clear" class="icon-action clear-action" type="button" aria-label="Clear captured images">
+            <img class="action-icon" src="icons/document_5425848.png" alt="">
+          </button>
+        </div>
+      </section>
+
+      <section class="panel gallery-panel">
+        <div class="panel-header compact">
+          <div>
+            <p class="panel-kicker">Library</p>
+            <h2>Captured images</h2>
+          </div>
+        </div>
+        <div id="galleryImg" class="galleryImg"></div>
+        <div id="savedImg" class="savedImg"></div>
+      </section>
+    </main>
   </div>
-  <div class="stream-container">
-    <img id="loading" class="loading" />
-    <img id="stream" class="stream" crossorigin="anonymous" />
-    <br />
-    <select id="resolution" class="resolution">
-      <option value="0">96X96</option>
-      <option value="1">QQVGA 160X120</option>
-      <option value="2">176X144</option>
-      <option value="3">240X176</option>
-      <option value="4">240X240</option>
-      <option value="5">QVGA 320X240</option>
-      <option value="6">400X296</option>
-      <option value="7">480X320</option>
-      <option value="8">VGA 640X480</option>
-      <option value="9">SVGA 800X600</option>
-      <option value="10">XGA 1024X768</option>
-      <option value="11">720p 1280X720</option>
-      <option value="12">SXGA 1280X1024</option>
-    </select>
-  </div>
-  <br />
-  <br />
-  <br />
-</body>
-<div class="console-container">
-  <div class="row">
-    <img id="stop" class="stop" src="icons/stop_9503472.png">
-    <img id="capture" class="capture" src="icons/camera_7369145.png">
-  </div>
-  <br />
-  <div class="row">
-    <text id="intervalLabel" class="interval_label"></text>
-    <input type="number" id="interval" class="interval">
-    &nbsp&nbsp
-    <text id="instanceLabel" class="instance_label"></text>
-    <input type="number" id="instance" class="instance">
-  </div>
-</div>
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-<div id = "download-delete"  class = "download-delete">
-  <img id="download" class="download" src="icons/document_5425860.png">
-  <input type="number" id="image_no" class="image-no">
-  <img id="clear" class="clear" src="icons/document_5425848.png">
-</div>
-<br/>
-<div id="galleryImg" class="galleryImg">
-</div>
-<div id="savedImg" class="savedImg">
-</div>
-<br />
-<script src="index.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+  <script src="index.js"></script>
 </body>
 
 </html>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
